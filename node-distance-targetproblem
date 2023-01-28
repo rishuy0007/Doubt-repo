@@ -1,0 +1,88 @@
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+public:
+
+    void markParent(TreeNode* root , unordered_map<TreeNode* , TreeNode*> parent_track , TreeNode* target )
+    {
+        queue<TreeNode*> q;
+        q.push(root);
+       
+        while(!q.empty())
+        {
+            TreeNode* current = q.front();
+             q.pop();
+             if(current->left)
+             {
+                 parent_track[current->left] = current;
+                 q.push(current->left);
+             }
+
+             if(current->right)
+             {
+                 parent_track[current->right] = current;
+                 q.push(current->right);
+             }
+             
+        }
+    }
+    vector<int> distanceK(TreeNode* root, TreeNode* target, int k) {
+        unordered_map<TreeNode* , TreeNode*> parent_track;
+
+        markParent(root , parent_track , target);
+
+        unordered_map<TreeNode* , bool> visited;
+        queue<TreeNode* > qu;
+        qu.push(target);
+        
+        visited[target] = true;
+
+        int cur = 0;
+        while(!qu.empty())
+        {
+
+            int size = qu.size();
+
+            for(int i = 0; i<size; i++)
+            {
+
+            TreeNode* current = qu.front();
+            qu.pop();
+            if(cur++ == k) break;
+
+            if(current->left && !visited[parent_track[current->left]])
+            {
+                qu.push(current->left);
+                visited[current->left] = true;
+            }
+            if(current->right && !visited[parent_track[current->right]])
+            {
+                qu.push(current->right);
+                visited[current->right] = true;
+            }
+            if(parent_track[current] && !visited[parent_track[current]])
+            {
+                qu.push(parent_track[current]);
+                visited[parent_track[current]] = true;
+            }
+            }
+
+        }
+       
+            vector<int> ans;
+            while(!qu.empty())
+            {
+                 TreeNode* lr = qu.front();
+                qu.pop();
+                ans.push_back(lr->val);
+            }
+            return ans;
+    }
+};
